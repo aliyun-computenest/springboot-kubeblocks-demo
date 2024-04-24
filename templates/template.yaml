@@ -1,0 +1,109 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Description:
+  en: yaml部署wordpress
+  zh-cn: yaml部署wordpress
+Parameters:
+  ClusterId:
+    Type: String
+    AssociationProperty: ALIYUN::CS::Cluster::ClusterId
+  Memory:
+    Type: String
+    AllowedValues:
+      - 1Gi
+      - 2Gi
+      - 4Gi
+  Vcpu:
+    Type: String
+    AllowedValues:
+      - 1
+      - 2
+  ReplicaCount:
+    Type: Number
+    Default: 1
+Resources:
+  ClusterApplication:
+    Type: ALIYUN::CS::ClusterApplication
+    Properties:
+      WaitUntils:
+        - Kind: Cluster
+          Name:
+            Ref: ALIYUN::StackName
+          JsonPath: $.status.phase
+          Operator: Equals
+          Value: 'Running'
+          Timeout: 300
+          ValueType: Json
+          FirstMatch: true
+        - Kind: Service
+          Name:
+            Fn::Sub:
+              - ${Name}-${Name}-nginx
+              - Name:
+                  Ref: ALIYUN::StackName
+          JsonPath: $.status.loadBalancer.ingress[0].ip
+          Operator: NotEmpty
+          Timeout: 300
+      YamlContent:
+        Fn::Sub:
+          - |
+            apiVersion: apps.kubeblocks.io/v1alpha1
+            kind: Cluster
+            metadata:
+              name: ${Name}
+            spec:
+              clusterDefinitionRef: nginx
+              clusterVersionRef: nginx-1.0
+              componentSpecs:
+              - componentDefRef: nginx-compdef
+                name: nginx
+                replicas: ${ReplicaCount}
+                services:
+                 - name: springboot
+                   serviceType: LoadBalancer
+                resources:
+                  limits:
+                    cpu: "${Vcpu}"
+                    memory: "${Memory}"
+                  requests:
+                    cpu: "${Vcpu}"
+                    memory: "${Memory}"
+              terminationPolicy: Delete
+          - ReplicaCount:
+              Ref: ReplicaCount
+            Name:
+              Ref: ALIYUN::StackName
+            Vcpu:
+              Ref: Vcpu
+            Memory:
+              Ref: Memory
+      ClusterId:
+        Ref: ClusterId
+      DefaultNamespace: default
+Outputs:
+  # 将公网ip做为http返回的地址显示在控制台
+  Endpoint:
+    Description:
+      zh-cn: 对外暴露的公网IP地址
+      en: Public IP Addresses
+    Value:
+      Fn::Sub:
+        - http://${Name}.${ClusterId}.${RegionId}.alicontainer.com
+        - Name:
+            Ref: ALIYUN::StackName
+          RegionId:
+            Ref: ALIYUN::Region
+          ClusterId:
+            Ref: ClusterId
+Metadata:
+  'ALIYUN::ROS::Interface':
+    ParameterGroups:
+      - Parameters:
+          - Memory
+          - Vcpu
+          - ReplicaCount
+        Label:
+          en: 资源信息
+      - Parameters:
+          - ClusterId
+        Label:
+          en: 集群信息

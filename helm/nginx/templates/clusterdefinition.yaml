@@ -1,0 +1,26 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: ClusterDefinition
+metadata:
+  name: nginx
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+spec:
+  connectionCredential:
+    endpoint: "$(SVC_FQDN):$(SVC_PORT_nginx)"
+    host: "$(SVC_FQDN)"
+    port: "$(SVC_PORT_nginx)"
+  componentDefs:
+    - name: nginx-compdef
+      workloadType: Stateless
+      service:
+        ports:
+          - name: nginx
+            port: 8080
+            targetPort: nginx
+      podSpec:
+        containers:
+          - name: nginx-container
+            imagePullPolicy: IfNotPresent
+            ports:
+              - containerPort: 80
+                name: nginx
