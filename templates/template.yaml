@@ -1,7 +1,4 @@
 ROSTemplateFormatVersion: '2015-09-01'
-Description:
-  en: yaml部署wordpress
-  zh-cn: yaml部署wordpress
 Parameters:
   ClusterId:
     Type: String
@@ -24,7 +21,7 @@ Resources:
   ClusterApplication:
     Type: ALIYUN::CS::ClusterApplication
     Properties:
-      WaitUntils:
+      WaitUntil:
         - Kind: Cluster
           Name:
             Ref: ALIYUN::StackName
@@ -32,7 +29,7 @@ Resources:
           Operator: Equals
           Value: 'Running'
           Timeout: 300
-          ValueType: Json
+          ValueType: String
           FirstMatch: true
         - Kind: Service
           Name:
@@ -43,6 +40,7 @@ Resources:
           JsonPath: $.status.loadBalancer.ingress[0].ip
           Operator: NotEmpty
           Timeout: 300
+          FirstMatch: true
       YamlContent:
         Fn::Sub:
           - |
@@ -58,7 +56,7 @@ Resources:
                 name: nginx
                 replicas: ${ReplicaCount}
                 services:
-                 - name: springboot
+                 - name: nginx
                    serviceType: LoadBalancer
                 resources:
                   limits:
@@ -81,19 +79,19 @@ Resources:
       DefaultNamespace: default
 Outputs:
   # 将公网ip做为http返回的地址显示在控制台
-  Endpoint:
+  VisitUrl:
     Description:
-      zh-cn: 对外暴露的公网IP地址
-      en: Public IP Addresses
+      zh-cn: 访问地址
+      en: Visit Url
     Value:
       Fn::Sub:
-        - http://${Name}.${ClusterId}.${RegionId}.alicontainer.com
-        - Name:
-            Ref: ALIYUN::StackName
-          RegionId:
-            Ref: ALIYUN::Region
-          ClusterId:
-            Ref: ClusterId
+        - http://${LoadBalancerIp}:8080
+        - LoadBalancerIp:
+            Fn::Select:
+              - 1
+              - Fn::GetAtt:
+                  - ClusterApplication
+                  - WaitUntilData
 Metadata:
   'ALIYUN::ROS::Interface':
     ParameterGroups:
