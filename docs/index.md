@@ -1,7 +1,7 @@
 # 服务模版说明文档
 
 ## 服务说明
-本示例以nginx为例子介绍如何利用kubeblocks扩展服务并跟计算巢托管版集成 本示例对应的[git地址](https://github.com/aliyun-computenest/nginx-kubeblocks-demo)
+本示例以nginx为例子介绍如何利用[KubeBlocks](https://kubeblocks.io/)扩展服务并跟计算巢托管版集成，本示例对应的Git仓库地址：[nginx-kubeblocks-demo](https://github.com/aliyun-computenest/nginx-kubeblocks-demo)。
 
 根据该服务模板构建的服务默认包含三种套餐：
 
@@ -13,8 +13,8 @@
 
 
 ## 前提条件
-1. 本示例需要提前准备ack集群，需要到[容器服务控制台](https://cs.console.aliyun.com/) 提前创建
-2.安装kubeblocks
+1. 本示例需要提前准备ack集群，需要到[容器服务控制台](https://cs.console.aliyun.com/) 提前创建。
+2. 安装KubeBlocks
 ```shell
 # 参考 https://cn.kubeblocks.io/docs/preview/user-docs/installation/install-with-helm/install-kubeblocks-with-helm
 
@@ -26,7 +26,7 @@ helm repo update
 
 helm install kubeblocks kubeblocks/kubeblocks --namespace kb-system --create-namespace
 ```
-3. 在helm路径执行 
+3. 在helm路径执行
 ```shell
 # 接入参考 https://cn.kubeblocks.io/docs/preview/developer-docs/integration/how-to-add-an-add-on
 helm install nginx ./nginx
@@ -34,11 +34,11 @@ helm install nginx ./nginx
 
 ## 服务构建计费说明
 
-测试本服务构建无需任何费用，创建服务实例涉及的费用参考服务实例计费说明
+测试本服务构建无需任何费用，创建服务实例涉及的费用参考服务实例计费说明。
 
 ## RAM账号所需权限
 
-本服务需要对ECS、VPC等资源进行访问和创建操作，若您使用RAM用户创建服务实例，需要在创建服务实例前，对使用的RAM用户的账号添加相应资源的权限。添加RAM权限的详细操作，请参见[为RAM用户授权](https://help.aliyun.com/document_detail/121945.html)。所需权限如下表所示。
+本服务需要对ECS、VPC等资源进行访问和创建操作，若您使用RAM用户创建服务实例，需要在创建服务实例前，对使用的RAM用户的账号添加相应资源的权限。添加RAM权限的详细操作，请参见[为RAM用户授权](https://help.aliyun.com/document_detail/121945.html)。所需权限如下表所示：
 
 | 权限策略名称                          | 备注                     |
 |---------------------------------|------------------------|
@@ -57,6 +57,6 @@ helm install nginx ./nginx
 
 ## 服务详细说明
 
-通过ALIYUN::CS::ClusterApplication部署yaml到k8s，并给每个租户的对应到不同namespace上
-服务使用kubeblocks的Cluster CRD构建 nginx
-nginx的详细配置参考helm目录下的nginx目录
+使用 [ALIYUN::CS::ClusterApplication](https://rosnext.console.aliyun.com/resourceType/ALIYUN::CS::ClusterApplication?entityType=Resource) 资源将 YAML 配置部署到 Kubernetes 集群中，并且将每个租户映射到专属的命名空间（Namespace）。
+
+本服务利用 KubeBlocks 提供的 Cluster 自定义资源定义（CRD）来创建nginx服务实例。关于 nginx 的具体配置信息，请参见 Helm 配置文件，位置在 helm/nginx 目录。
