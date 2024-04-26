@@ -31,6 +31,12 @@ Resources:
           Timeout: 300
           ValueType: String
           FirstMatch: true
+        - Kind: Cluster
+          Name: 
+            Ref: ALIYUN::StackName
+          Timeout: 300
+          Operator: Empty
+          Stage: Delete
         - Kind: Service
           Name:
             Fn::Sub:
