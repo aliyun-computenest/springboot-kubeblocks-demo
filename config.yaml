@@ -10,7 +10,9 @@ Service:
       UserType: Aliyun
       SupplierTemplateConfigs:
         - Name: nginx
-          Url: 'templates/template.yaml'
+          AllowedRegions:
+            - ${RegionId}
+          Url: 'ros_templates/template.yaml'
           PredefinedParameters:
             - Name: 低配版
               Description: 1c1g
@@ -51,15 +53,11 @@ Service:
                 ${RegionId}:
                   Parameters:
                     ClusterId: ${ClusterId}
-    TemplateConfigs:
-      - Name: nginx
-        AllowedRegions:
-          - ${RegionId}
   ServiceType: managed
   ServiceInfo:
     Locale: zh-CN
     ShortDescription: nginx kubeblocks ACK容器多租户
-    Image: 'icons/service_logo.png'
+    Image: 'resources/icons/service_logo.png'
     Name: nginx kubeblocks ACK容器yaml部署
   ShareType: Public
   ApprovalType: Manual
