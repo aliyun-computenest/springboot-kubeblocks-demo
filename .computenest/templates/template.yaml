@@ -1,0 +1,113 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Parameters:
+  ClusterId:
+    Type: String
+    AssociationProperty: ALIYUN::CS::Cluster::ClusterId
+  Memory:
+    Type: String
+    AllowedValues:
+      - 1Gi
+      - 2Gi
+      - 4Gi
+  Vcpu:
+    Type: String
+    AllowedValues:
+      - 1
+      - 2
+  ReplicaCount:
+    Type: Number
+    Default: 1
+Resources:
+  ClusterApplication:
+    Type: ALIYUN::CS::ClusterApplication
+    Properties:
+      WaitUntil:
+        - Kind: Cluster
+          Name:
+            Ref: ALIYUN::StackName
+          JsonPath: $.status.phase
+          Operator: Equals
+          Value: 'Running'
+          Timeout: 300
+          ValueType: String
+          FirstMatch: true
+        - Kind: Cluster
+          Name: 
+            Ref: ALIYUN::StackName
+          Timeout: 300
+          Operator: Empty
+          Stage: Delete
+        - Kind: Service
+          Name:
+            Fn::Sub:
+              - ${Name}-${Name}-nginx
+              - Name:
+                  Ref: ALIYUN::StackName
+          JsonPath: $.status.loadBalancer.ingress[0].ip
+          Operator: NotEmpty
+          Timeout: 300
+          FirstMatch: true
+      YamlContent:
+        Fn::Sub:
+          - |
+            apiVersion: apps.kubeblocks.io/v1alpha1
+            kind: Cluster
+            metadata:
+              name: ${Name}
+            spec:
+              clusterDefinitionRef: nginx
+              clusterVersionRef: nginx-1.0
+              componentSpecs:
+              - componentDefRef: nginx-compdef
+                name: nginx
+                replicas: ${ReplicaCount}
+                services:
+                 - name: nginx
+                   serviceType: LoadBalancer
+                resources:
+                  limits:
+                    cpu: "${Vcpu}"
+                    memory: "${Memory}"
+                  requests:
+                    cpu: "${Vcpu}"
+                    memory: "${Memory}"
+              terminationPolicy: Delete
+          - ReplicaCount:
+              Ref: ReplicaCount
+            Name:
+              Ref: ALIYUN::StackName
+            Vcpu:
+              Ref: Vcpu
+            Memory:
+              Ref: Memory
+      ClusterId:
+        Ref: ClusterId
+      DefaultNamespace: default
+Outputs:
+  # 将公网ip做为http返回的地址显示在控制台
+  VisitUrl:
+    Description:
+      zh-cn: 访问地址
+      en: Visit Url
+    Value:
+      Fn::Sub:
+        - http://${LoadBalancerIp}:8080
+        - LoadBalancerIp:
+            Fn::Select:
+              - 1
+              - Fn::GetAtt:
+                  - ClusterApplication
+                  - WaitUntilData
+Metadata:
+  'ALIYUN::ROS::Interface':
+    ParameterGroups:
+      - Parameters:
+          - Memory
+          - Vcpu
+          - ReplicaCount
+        Label:
+          en: 资源信息
+      - Parameters:
+          - ClusterId
+        Label:
+          en: 集群信息

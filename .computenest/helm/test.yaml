@@ -1,0 +1,22 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: Cluster
+metadata:
+  name: mytest
+spec:
+  clusterDefinitionRef: nginx
+  clusterVersionRef: nginx-1.0
+  componentSpecs:
+  - componentDefRef: nginx-compdef
+    name: nginx
+    replicas: 1
+    services:
+     - name: nginx
+       serviceType: LoadBalancer
+    resources:
+      limits:
+        cpu: "1"
+        memory: "1Gi"
+      requests:
+        cpu: "1"
+        memory: "1Gi"
+  terminationPolicy: Delete
