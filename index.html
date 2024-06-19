@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="计算巢是阿里云开放给企业应用服务商的服务管理平台。服务商能够在计算巢上发布私有化部署服务，为其客户提供云上软件一键部署的能力；同时也支持全托管模式的服务，赋能服务商托管其客户资源。">
+  <title>服务模版说明文档 - Aliyun 计算巢 x Demo</title>
+
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="css/theme.css">
+  
+
+  
+
+  
+  
+
+  
+    <script src="search/main.js"></script>
+  
+
+  
+
+  <script src="js/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="logo">
+          <img src="./img/logo-2x.png">
+        </div>
+        <div class="nav-list">
+          <ul>
+          
+              <li><a href="#_1">服务模版说明文档</a></li>
+              
+                  <li><a href="#_2">服务说明</a></li>
+                  
+              
+                  <li><a href="#_3">前提条件</a></li>
+                  
+              
+                  <li><a href="#_4">服务构建计费说明</a></li>
+                  
+              
+                  <li><a href="#ram">RAM账号所需权限</a></li>
+                  
+              
+                  <li><a href="#_5">服务实例计费说明</a></li>
+                  
+              
+                  <li><a href="#_6">服务详细说明</a></li>
+                  
+              
+          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content theme-github">
+      
+      <div class="content-inner">        
+        
+        <h1 id="_1">服务模版说明文档</h1>
+<h2 id="_2">服务说明</h2>
+<p>本示例以nginx为例子介绍如何利用<a href="https://kubeblocks.io/">KubeBlocks</a>扩展服务并跟计算巢托管版集成，本示例对应的Git仓库地址：<a href="https://github.com/aliyun-computenest/nginx-kubeblocks-demo">nginx-kubeblocks-demo</a>。</p>
+<p>根据该服务模板构建的服务默认包含三种套餐：</p>
+<table>
+<thead>
+<tr>
+<th>套餐名</th>
+<th>vCPU与内存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低配版</td>
+<td>1vCPU 1GiB</td>
+</tr>
+<tr>
+<td>基础版</td>
+<td>2vCPU 2GiB</td>
+</tr>
+<tr>
+<td>高配版</td>
+<td>2vCPU 4GiB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">前提条件</h2>
+<ol>
+<li>本示例需要提前准备ack集群，需要到<a href="https://cs.console.aliyun.com/">容器服务控制台</a> 提前创建。</li>
+<li>安装KubeBlocks</li>
+</ol>
+<pre><code class="language-shell"># 参考 https://cn.kubeblocks.io/docs/preview/user-docs/installation/install-with-helm/install-kubeblocks-with-helm
+
+kubectl create -f https://github.com/apecloud/kubeblocks/releases/download/v0.8.1/kubeblocks_crds.yaml
+
+helm repo add kubeblocks https://apecloud.github.io/helm-charts
+
+helm repo update
+
+helm install kubeblocks kubeblocks/kubeblocks --namespace kb-system --create-namespace
+</code></pre>
+<ol>
+<li>在helm路径执行</li>
+</ol>
+<pre><code class="language-shell"># 接入参考 https://cn.kubeblocks.io/docs/preview/developer-docs/integration/how-to-add-an-add-on
+helm install nginx ./nginx
+</code></pre>
+<h2 id="_4">服务构建计费说明</h2>
+<p>测试本服务构建无需任何费用，创建服务实例涉及的费用参考服务实例计费说明。</p>
+<h2 id="ram">RAM账号所需权限</h2>
+<p>本服务需要对ECS、VPC等资源进行访问和创建操作，若您使用RAM用户创建服务实例，需要在创建服务实例前，对使用的RAM用户的账号添加相应资源的权限。添加RAM权限的详细操作，请参见<a href="https://help.aliyun.com/document_detail/121945.html">为RAM用户授权</a>。所需权限如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>权限策略名称</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AliyunCSFullAccess</td>
+<td>管理容器服务服务（CS）的权限</td>
+</tr>
+<tr>
+<td>AliyunROSFullAccess</td>
+<td>管理资源编排服务（ROS）的权限</td>
+</tr>
+<tr>
+<td>AliyunComputeNestUserFullAccess</td>
+<td>管理计算巢服务（ComputeNest）的用户侧权限</td>
+</tr>
+<tr>
+<td>AliyunComputeNestSupplierFullAccess</td>
+<td>管理计算巢服务（ComputeNest）的服务商侧权限</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">服务实例计费说明</h2>
+<p>测试本服务在计算巢上的费用主要涉及：</p>
+<ul>
+<li>导入的ACK集群的费用</li>
+<li>在ACK集群新建的磁盘、网络等费用</li>
+</ul>
+<h2 id="_6">服务详细说明</h2>
+<p>使用 <a href="https://rosnext.console.aliyun.com/resourceType/ALIYUN::CS::ClusterApplication?entityType=Resource">ALIYUN::CS::ClusterApplication</a> 资源将 YAML 配置部署到 Kubernetes 集群中，并且将每个租户映射到专属的命名空间（Namespace）。</p>
+<p>本服务利用 KubeBlocks 提供的 Cluster 自定义资源定义（CRD）来创建nginx服务实例。关于 nginx 的具体配置信息，请参见 Helm 配置文件，位置在 helm/nginx 目录。</p>
+        
+      </div>
+
+      <div class="copyrights">© 2009-2022 Aliyun.com 版权所有</div>
+    </div>
+  </div>
+  
+  <!--
+  MkDocs version      : 1.6.0
+  Docs Build Date UTC : 2024-06-19 02:26:52.740323+00:00
+  -->
+</body>
+</html>
