@@ -1,0 +1,15 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: ClusterVersion
+metadata:
+  name: nginx-{{ default .Chart.AppVersion .Values.clusterVersionOverride }}
+  labels:
+    {{- include "nginx.labels" . | nindent 4 }}
+spec:
+  clusterDefinitionRef: nginx
+  componentVersions:
+    - componentDefRef: nginx-compdef
+      versionsContext:
+        containers:
+          - name: nginx-container
+            image: {{ .Values.image.fullname }}
+            imagePullPolicy: {{ default .Values.image.pullPolicy "IfNotPresent" }}
